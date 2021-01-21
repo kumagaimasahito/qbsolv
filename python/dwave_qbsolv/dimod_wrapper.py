@@ -91,12 +91,18 @@ class QBSolv(dimod.core.sampler.Sampler):
 
         # pose the QUBO to qbsolv
         Q, offset = bqm.to_qubo()
-        samples, energies, counts = run_qbsolv(Q=Q, num_repeats=num_repeats, seed=seed, algorithm=algorithm,
-                                               verbosity=verbosity, timeout=timeout, solver_limit=solver_limit,
-                                               solver=solver, target=target, find_max=find_max, sample_kwargs=sample_kwargs)
+        if hasattr(solver, 'sample_ising') and hasattr(solver, 'sample_qubo'):
+            samples, energies, counts, timing = run_qbsolv(Q=Q, num_repeats=num_repeats, seed=seed, algorithm=algorithm,
+                                                verbosity=verbosity, timeout=timeout, solver_limit=solver_limit,
+                                                solver=solver, target=target, find_max=find_max, sample_kwargs=sample_kwargs)
+        else:
+            samples, energies, counts = run_qbsolv(Q=Q, num_repeats=num_repeats, seed=seed, algorithm=algorithm,
+                                                verbosity=verbosity, timeout=timeout, solver_limit=solver_limit,
+                                                solver=solver, target=target, find_max=find_max, sample_kwargs=sample_kwargs)
 
         response = dimod.SampleSet.from_samples(samples, energy=energies,
                                                 num_occurrences=counts, vartype=dimod.BINARY)
         response.change_vartype(bqm.vartype, energy_offset=offset)
+        response.info['timing'] = timing
 
         return response
