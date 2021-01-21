@@ -60,21 +60,23 @@ def run_qbsolv(Q, num_repeats=50, seed=17932241798878,  verbosity=-1,
     elif hasattr(solver, 'sample_ising') and hasattr(solver, 'sample_qubo'):
         log.debug('Using dimod as sub-problem solver.')
         params.sub_sampler = &solver_callback
+        timing = {}
 
         def dimod_callback(Q, best_state):
             result = solver.sample_qubo(Q, **sample_kwargs)
             # Get the timing info of d-wave quantum annealer
             try:
                 if hasattr(result, 'info') and ('timing' in result.info):
-                    timing = result.info['timing']
+                    timing.update(result.info['timing'])
+                    print(timing)
             except:
                 pass
             sample = next(result.samples())
             for key, value in sample.items():
                 best_state[key] = value
-            return best_state, timing
+            return best_state
 
-        params.sub_sampler_data, timing = <void*>dimod_callback
+        params.sub_sampler_data = <void*>dimod_callback
 
     # Otherwise any callable should work
     elif callable(solver):

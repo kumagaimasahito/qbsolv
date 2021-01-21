@@ -99,6 +99,7 @@ class QBSolv(dimod.core.sampler.Sampler):
             samples, energies, counts = run_qbsolv(Q=Q, num_repeats=num_repeats, seed=seed, algorithm=algorithm,
                                                 verbosity=verbosity, timeout=timeout, solver_limit=solver_limit,
                                                 solver=solver, target=target, find_max=find_max, sample_kwargs=sample_kwargs)
+            timing = {}
 
         response = dimod.SampleSet.from_samples(samples, energy=energies,
                                                 num_occurrences=counts, vartype=dimod.BINARY)
